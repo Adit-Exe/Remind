@@ -7,13 +7,6 @@ Remind is a powerful, modern timer management application built with **Kotlin** 
 - **Unlimited Timers**: Create and manage multiple timers simultaneously.
 - **Dynamic Sorting**: Timers are automatically sorted by proximity to completion—the most urgent timers always appear at the top.
 - **Live UI**: Real-time progress bars and countdowns that update every second.
-- **Glassmorphism Widget**:
-    - Beautiful translucent design with a subtle border.
-    - **Live Updates**: Updates every second directly on your home screen.
-    - **Responsive Layouts**:
-        - *Compact Mode*: Shows only progress bars when resized to small heights.
-        - *Title Mode*: Shows Title and Progress Bar when resized to small widths.
-        - *Full Mode*: Shows Title, Progress Bar, and Remaining Time.
 - **Milestone Notifications**:
     - **50% Completed**: High-priority alert when half the time is gone.
     - **90% Completed**: Alert when only 10% of the time remains.
@@ -27,7 +20,6 @@ Remind is a powerful, modern timer management application built with **Kotlin** 
 ## 🛠️ Tech Stack
 
 - **UI**: Jetpack Compose
-- **Widget**: Android Glance
 - **Concurrency**: Kotlin Coroutines & Flow
 - **Architecture**: MVVM (ViewModel, Repository)
 - **Local Storage**: Preferences DataStore + Kotlinx Serialization
