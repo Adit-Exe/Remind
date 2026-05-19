@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.material3.MaterialTheme
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -21,7 +22,7 @@ class MainActivity : ComponentActivity() {
         object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
-                return TimerViewModel(repository) as T
+                return TimerViewModel(repository, application) as T
             }
         }
     }
@@ -39,13 +40,15 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            MainScreen(viewModel)
+            MaterialTheme {
+                MainScreen(viewModel)
+            }
         }
 
-        // Start service if any timer is active
+        // Start service if any timer is pinned
         lifecycleScope.launch {
             repository.timersFlow.collect { timers ->
-                if (timers.any { it.endDateTime > System.currentTimeMillis() }) {
+                if (timers.any { it.isPinned }) {
                     val intent = Intent(this@MainActivity, TimerNotificationService::class.java)
                     startForegroundService(intent)
                 }
