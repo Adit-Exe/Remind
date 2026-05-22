@@ -35,6 +35,8 @@ object Utils {
         if (currentMilli <= startMilli) return 0.0f
         
         val total = (endMilli - startMilli).toFloat()
+        if (total <= 0) return 1.0f
+
         val elapsed = (currentMilli - startMilli).toFloat()
         return (elapsed / total).coerceIn(0f, 1f)
     }

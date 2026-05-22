@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,6 +17,7 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
@@ -63,7 +65,7 @@ class TimerWidget : GlanceAppWidget() {
             } else {
                 LazyColumn(modifier = GlanceModifier.fillMaxSize()) {
                     items(timers) { timer ->
-                        TimerItem(timer, isSmallHeight, isSmallWidth)
+                        TimerItem(timer, isSmallHeight, isSmallWidth, size.width)
                         Spacer(modifier = GlanceModifier.height(12.dp))
                     }
                 }
@@ -72,7 +74,7 @@ class TimerWidget : GlanceAppWidget() {
     }
 
     @androidx.compose.runtime.Composable
-    private fun TimerItem(timer: Timer, isSmallHeight: Boolean, isSmallWidth: Boolean) {
+    private fun TimerItem(timer: Timer, isSmallHeight: Boolean, isSmallWidth: Boolean, totalWidth: Dp) {
         val now = System.currentTimeMillis()
         val progress = Utils.calculateProgress(timer.startDateTime, timer.endDateTime, now)
         val remaining = Utils.getRemainingTimeText(timer.endDateTime, now)
@@ -99,25 +101,25 @@ class TimerWidget : GlanceAppWidget() {
                         )
                     }
                 }
-                Spacer(modifier = GlanceModifier.height(6.dp))
+                Spacer(modifier = GlanceModifier.height(8.dp))
             }
 
-            // Custom Progress Bar using blocks for Glance compatibility
-            Row(
+            // Smooth Rounded Progress Bar
+            val barWidth = totalWidth - 24.dp // accounting for 12.dp padding on both sides of parent
+            Box(
                 modifier = GlanceModifier
                     .fillMaxWidth()
-                    .height(6.dp)
-                    .background(Color.White.copy(alpha = 0.5f))
+                    .height(8.dp)
+                    .background(Color.White.copy(alpha = 0.2f))
+                    .cornerRadius(10.dp)
             ) {
-                val blockCount = 50
-                val filledBlocks = (progress * blockCount).toInt()
-                
-                repeat(blockCount) { index ->
+                if (progress > 0f) {
                     Box(
                         modifier = GlanceModifier
-                            .defaultWeight()
+                            .width(barWidth * progress)
                             .fillMaxHeight()
-                            .background(if (index < filledBlocks) Color.White else Color.Transparent)
+                            .background(Color.White)
+                            .cornerRadius(10.dp)
                     ) {}
                 }
             }
