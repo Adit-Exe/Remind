@@ -1,7 +1,8 @@
- # Remind
 <p align="center">
   <img src="remindsqr.jpg" alt="Project Flowchart" width="80%"/>
 </p>
+
+ # Remind
  Remind is a powerful, modern timer management application built with **Kotlin** and **Jetpack Compose**. It features real-time tracking, intelligent milestone notifications, and a beautiful glassmorphism home screen widget.
 ​
  ## 🚀 Features
