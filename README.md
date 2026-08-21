@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="remindsqr.jpg" alt="Project Flowchart" width="80%"/>
-</p>
-
 # Remind
 
 I used to forget my things so I built this app. Whether it's a deadline, an appointment, or just a reminder to take a break, Remind helps you keep track of your time with a beautiful and intuitive interface.

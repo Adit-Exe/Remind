@@ -77,7 +77,7 @@ class TimerViewModel(private val repository: TimerRepository, private val applic
     private fun checkForUpdates() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val url = URL("https://adit-exe.github.io/Portfolio/remind.json")
+                val url = URL("https://adit-exe.github.io/Portfolio/remind/remind.json")
                 val connection = url.openConnection() as HttpURLConnection
                 val jsonText = connection.inputStream.bufferedReader().use { it.readText() }
                 val info = Json.decodeFromString<UpdateInfo>(jsonText)
