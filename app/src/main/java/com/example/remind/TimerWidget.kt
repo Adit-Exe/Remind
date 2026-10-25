@@ -79,7 +79,7 @@ class TimerWidget : GlanceAppWidget() {
         val progress = Utils.calculateProgress(timer.startDateTime, timer.endDateTime, now)
         val remaining = Utils.getRemainingTimeText(timer.endDateTime, now)
 
-        Column(modifier = GlanceModifier.fillMaxWidth()) {
+        Column(modifier = GlanceModifier.fillMaxWidth().clickable(actionStartActivity<MainActivity>())) {
             if (!isSmallHeight) {
                 Row(
                     modifier = GlanceModifier.fillMaxWidth(),

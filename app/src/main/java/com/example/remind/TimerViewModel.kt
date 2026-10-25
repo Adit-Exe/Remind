@@ -1,8 +1,6 @@
 package com.example.remind
 
-import android.app.AlarmManager
 import android.app.Application
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -180,83 +178,8 @@ class TimerViewModel(private val repository: TimerRepository, private val applic
     }
 
     private suspend fun scheduleMilestoneAlarms(timer: Timer, settings: List<NotificationSetting>? = null) {
-        val alarmManager = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val duration = timer.endDateTime - timer.startDateTime
         val currentSettings = settings ?: repository.notificationSettingsFlow.first()
-
-        currentSettings.forEach { setting ->
-            try {
-                val triggerTime = when (setting) {
-                    is NotificationSetting.PercentageSetting -> {
-                        timer.startDateTime + (duration * (setting.percentage / 100f)).toLong()
-                    }
-                    is NotificationSetting.TimeSetting -> {
-                        val offset = when (setting.unit) {
-                            TimeUnitType.MINUTES -> setting.value * 60 * 1000L
-                            TimeUnitType.DAYS -> setting.value * 24 * 60 * 60 * 1000L
-                            TimeUnitType.MONTHS -> setting.value * 30 * 24 * 60 * 60 * 1000L // Approximation
-                        }
-                        // Trigger time is calculated from timer start date, not end date
-                        if (setting.type == TimeType.BEFORE) {
-                            timer.endDateTime - offset
-                        } else {
-                            timer.startDateTime + offset
-                        }
-                    }
-                }
-
-                val status = when (setting) {
-                    is NotificationSetting.PercentageSetting -> "${setting.percentage}% Completed"
-                    is NotificationSetting.TimeSetting -> {
-                        val unitText = setting.unit.name.lowercase().replaceFirstChar { it.uppercase() }
-                        if (setting.type == TimeType.BEFORE) {
-                            "${setting.value} ${unitText} left"
-                        } else {
-                            "${setting.value} ${unitText} completed"
-                        }
-                    }
-                }
-
-                if (triggerTime > System.currentTimeMillis()) {
-                    val intent = Intent(application, MilestoneReceiver::class.java).apply {
-                        putExtra("timer_name", timer.name)
-                        putExtra("status", status)
-                        putExtra("timer_id", timer.id)
-                    }
-
-                    val pendingIntent = PendingIntent.getBroadcast(
-                        application,
-                        (timer.id + setting.id).hashCode(),
-                        intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                    )
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        if (alarmManager.canScheduleExactAlarms()) {
-                            alarmManager.setExactAndAllowWhileIdle(
-                                AlarmManager.RTC_WAKEUP,
-                                triggerTime,
-                                pendingIntent
-                            )
-                        } else {
-                            alarmManager.setAndAllowWhileIdle(
-                                AlarmManager.RTC_WAKEUP,
-                                triggerTime,
-                                pendingIntent
-                            )
-                        }
-                    } else {
-                        alarmManager.setExactAndAllowWhileIdle(
-                            AlarmManager.RTC_WAKEUP,
-                            triggerTime,
-                            pendingIntent
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        AlarmScheduler.scheduleMilestoneAlarms(application, timer, currentSettings)
     }
 
     fun deleteTimer(timer: Timer) {
@@ -269,21 +192,8 @@ class TimerViewModel(private val repository: TimerRepository, private val applic
     }
 
     private suspend fun cancelMilestoneAlarms(timer: Timer, settings: List<NotificationSetting>? = null) {
-        val alarmManager = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val currentSettings = settings ?: repository.notificationSettingsFlow.first()
-
-        currentSettings.forEach { setting ->
-            val intent = Intent(application, MilestoneReceiver::class.java)
-            val pendingIntent = PendingIntent.getBroadcast(
-                application,
-                (timer.id + setting.id).hashCode(),
-                intent,
-                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-            )
-            if (pendingIntent != null) {
-                alarmManager.cancel(pendingIntent)
-            }
-        }
+        AlarmScheduler.cancelMilestoneAlarms(application, timer, currentSettings)
     }
 
     fun togglePin(timer: Timer) {
